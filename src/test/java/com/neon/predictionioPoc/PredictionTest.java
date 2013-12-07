@@ -18,6 +18,8 @@ public class PredictionTest {
 	private static Client client;
 	private static Importer importer;
 	private static Set<String> users;
+	private static Map<String, Set<String>> watchedMovies;
+	private static Map<String, String> movies;
 
 	@BeforeClass
 	public static void before() {
@@ -26,23 +28,8 @@ public class PredictionTest {
 		client = new Client(apiKey, url);
 		importer = new Importer();
 		users = Importer.generateMockUids();
-	}
-
-	@Test
-	public void ImportShouldGenerateSomeMoviesToo() {
-		Map<String, String> movies = Importer.generateMockMovies();
-		assertNotNull(movies);
-		assertTrue(movies.size() > 0);
-		assertTrue(movies.get("6").equals("Shrek"));
-		assertFalse(movies.get("8").equals("Wrong Movie Title"));
-	}
-
-	@Test
-	public void InputShouldGenerateSomeMockWatchedMovies() {
-		Map<String, Set<String>> watchedMovies = Importer.generateMockWatchedMovies();
-		assertNotNull(watchedMovies);
-		assertFalse(watchedMovies.size() == 0);
-		assertTrue(watchedMovies.get("3").contains("4"));
+		movies = Importer.generateMockMovies();
+		watchedMovies = Importer.generateMockWatchedMovies();
 	}
 
 	@Test
@@ -51,26 +38,71 @@ public class PredictionTest {
 			for (String user : users) {
 				client.createUser(user);
 			} 
-			
-			
+
+
 			for (int i = 1; i <= 4; i++) {
 				assertNotNull(client.getUser(String.valueOf(i)));	
 			}	
-			
+
 		} catch (ExecutionException | InterruptedException | IOException e) {
 			fail("nope: " + e.getMessage());
 		}
 	}
-	
-	@After
-	public void cleanup() {
-		for (String user : users) {
+
+	@Test
+	public void clientShouldAddSomeMovies() {
+		try {
+
+			String[] type = new String[1];
+			type[0] = "movie";
+
+			for (String movie : movies.keySet()) {
+				client.createItem(movie, type);
+			}
+
+			assertNotNull(client.getItem("4"));
+			assertArrayEquals(type, client.getItem("6").getItypes());
+
+		} catch (ExecutionException | InterruptedException | IOException e) {
+			fail("nope: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void clientShouldMakeWatchingHappen() {
+		for (String user : watchedMovies.keySet()) {
+			Set<String> watched = watchedMovies.get(user);
+
+
 			try {
-				client.deleteUser(user);
-			} catch (ExecutionException | InterruptedException | IOException e) {
-				e.printStackTrace();
+				for (String movie : watched) {
+					client.userActionItem(user, "view", movie);
+				}
+			} catch (ExecutionException | InterruptedException
+					| IOException e) {
+				fail("nope: " + e.getMessage());
 			}
 		}
 	}
 	
+	@Test
+	public void status() {
+		try {
+			System.out.println(client.getStatus());
+		} catch (ExecutionException | InterruptedException | IOException e) {
+			fail("nope: " + e.getMessage());
+		}
+	}
+
+	//	@After
+	//	public void cleanup() {
+	//		for (String user : users) {
+	//			try {
+	//				client.deleteUser(user);
+	//			} catch (ExecutionException | InterruptedException | IOException e) {
+	//				e.printStackTrace();
+	//			}
+	//		}
+	//	}
+
 }
