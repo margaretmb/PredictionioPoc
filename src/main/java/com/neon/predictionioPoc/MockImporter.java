@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Importer {
+public class MockImporter {
 
 	public static Set<String> generateMockUids() {
 		Set<String> set = new TreeSet<>();

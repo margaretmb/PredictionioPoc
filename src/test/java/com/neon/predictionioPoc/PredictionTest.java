@@ -8,15 +8,16 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import io.prediction.Client;
+import io.prediction.ItemRecGetTopNRequestBuilder;
+import io.prediction.UnidentifiedUserException;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PredictionTest {
 
 	private static Client client;
-	private static Importer importer;
+	private static MockImporter importer;
 	private static Set<String> users;
 	private static Map<String, Set<String>> watchedMovies;
 	private static Map<String, String> movies;
@@ -26,10 +27,10 @@ public class PredictionTest {
 		String apiKey = "31biODHABXLSrrf76E3I4Ll0pO0v3s59BdOOr92mimQQuZU0gCnzXl8vTYsOOG8s";
 		String url = "http://localhost:8000";
 		client = new Client(apiKey, url);
-		importer = new Importer();
-		users = Importer.generateMockUids();
-		movies = Importer.generateMockMovies();
-		watchedMovies = Importer.generateMockWatchedMovies();
+		importer = new MockImporter();
+		users = MockImporter.generateMockUids();
+		movies = MockImporter.generateMockMovies();
+		watchedMovies = MockImporter.generateMockWatchedMovies();
 	}
 
 	@Test
@@ -86,23 +87,33 @@ public class PredictionTest {
 	}
 	
 	@Test
-	public void status() {
+	public void clientShouldRecommendSomeStuff() {
 		try {
 			System.out.println(client.getStatus());
+			client.identify("3");
+			ItemRecGetTopNRequestBuilder builder = client.getItemRecGetTopNRequestBuilder("enginemeister", 3);
+			String[] stuff = client.getItemRecTopN(builder);
+			
+			Set<String> watched = watchedMovies.get("3");
+			
+			System.out.println("user 3 watched: ");
+			for (String movie : watched) {
+				String title = movies.get(movie);
+				System.out.println(title);
+			}
+			
+			System.out.println("");
+			System.out.println("User 3 could watch: ");
+			for (String thing : stuff) {
+				String title = movies.get(thing);
+				System.out.println(title);
+			}
 		} catch (ExecutionException | InterruptedException | IOException e) {
+			fail("nope: " + e.getMessage());
+		} catch (UnidentifiedUserException e) {
 			fail("nope: " + e.getMessage());
 		}
 	}
-
-	//	@After
-	//	public void cleanup() {
-	//		for (String user : users) {
-	//			try {
-	//				client.deleteUser(user);
-	//			} catch (ExecutionException | InterruptedException | IOException e) {
-	//				e.printStackTrace();
-	//			}
-	//		}
-	//	}
+	
 
 }
