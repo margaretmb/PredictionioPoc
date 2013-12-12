@@ -1,13 +1,13 @@
 Prediction.io For Fun and Profit
 ================================
 
------------------------------
+
 1. Downloading and Installing
 -----------------------------
 
 In the "real world" we will probably be running this on an AWS instance, but for the purposes of this POC, I installed an instance locally. The provided instructions here (http://docs.prediction.io/current/installation/install-predictionio-on-linux.html) are very good for getting prediction.io set up on a Linux box. If you get some connection refused errors, simply running the installation again may take care of them. Make sure that you are able to ssh to localhost, though -- the instructions aren't kidding about that one.
 
------------------------------
+
 2. Somebody Set Us Up the App
 -----------------------------
 
@@ -21,7 +21,7 @@ In the before() method, change the app key to your app key.
 
 Please do not run all the unit tests at once. Well, you can if you really want, but all but the first one will result in failing conditions. Instead, I will go through the tests one at a time and explain what they mean.
 
----------------------------
+
 3. Importing All The Things
 ---------------------------
 
@@ -31,7 +31,7 @@ Go ahead and run the first unit test, clientShouldImportAllTheThings(). This one
 
 Okay, back? Chances are the test is still running, so now I'll explain what it's actually doing. This is, by the way, a modified version of the Python-based movie-recommendation tutorial found here (http://docs.prediction.io/current/tutorials/movie-recommendation.html), so you can check that out if you want. This method basically parses a database full of movies, users, and the users' ratings of various movies, and adds them to our prediction.io app. It's quite a bit of data, hence the long load time. But once it's done, we'll be able to use prediction.io to recommend the users some movies.
 
------------------------------
+
 4. Training Your First Engine
 -----------------------------
 
@@ -49,7 +49,7 @@ If this is the first time you've run prediction.io, it should (famous last words
 
 Assuming, however, that the training goes off without a hitch, the status box should change into a blue box that says "Running." 
 
------------------------------------
+
 5. Movie Recommendations for a User
 -----------------------------------
 
@@ -58,7 +58,7 @@ Now, at long last, you can run the second unit test, clientShouldRecommendAllThe
 One thing I have found about prediction.io is that unfortunately, the option to optimize the results based on whether they would watch or rate highly doesn't seem to do much -- it seems to recommend the same things no matter what. However, some tweaking of the algorithm that I haven't discovered yet may be able to help this. 
 
 
--------------------------------
+
 6. Similar Item Recommendations
 -------------------------------
 
