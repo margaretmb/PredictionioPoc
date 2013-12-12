@@ -19,23 +19,23 @@ import io.prediction.UserActionItemRequestBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class BigDamnImportTest {
+public class BigDamnTestSuite {
 	
 	private static Client client;
 	private static BigDamnImporter importer;
-	private static String apiKey;
+	private static String appKey;
 	private static String url;
 
 	@BeforeClass
 	public static void before() {
-		apiKey = "cvjMdOrvlQPY0CmQn7yBArK5BP5YpD0vFpJIyFJ3wKYfGqek6yV5QkYHcpijOoii";
+		appKey = "H1f5GNm6ZNOdY1Leqc1BcElrG7N01nlZouRYpNDNRK8TxGqDx2wmHSxkZBdntpt6"; // Change this to your actual app key!
 		url = "http://localhost:8000";
-		client = new Client(apiKey, url);
+		client = new Client(appKey, url);
 		importer = new BigDamnImporter();
 	}
 	
 	@Test
-	public void clientShouldImportAllTheseNiftyThings() throws ExecutionException, InterruptedException, IOException, UnidentifiedUserException {
+	public void clientShouldImportAllTheThings() throws ExecutionException, InterruptedException, IOException, UnidentifiedUserException {
 		Set<String> users = importer.importUsers();
 		for (String uid : users) {
 			client.createUser(uid);
@@ -58,7 +58,7 @@ public class BigDamnImportTest {
 			client.identify(ratingUser);
 			String ratedMovie = ratingArray[1];
 			String rating = ratingArray[2];
-			UserActionItemRequestBuilder builder = new UserActionItemRequestBuilder(url, "json", apiKey, "rate", ratingUser, ratedMovie);
+			UserActionItemRequestBuilder builder = new UserActionItemRequestBuilder(url, "json", appKey, "rate", ratingUser, ratedMovie);
 			builder.rate(Integer.parseInt(rating));
 			client.userActionItem(builder);
 			client.userActionItem("view", ratedMovie);
@@ -71,6 +71,7 @@ public class BigDamnImportTest {
 		String id = "999";
 		Map<String, String> movies = importer.importMovies();
 		List<String[]> ratings = importer.importRatings();
+		String engineName = "BigDamnEngine";
 		
 		for (String [] arr : ratings) {
 			if (arr[0].equals(id)) {
@@ -83,7 +84,7 @@ public class BigDamnImportTest {
 		System.out.println("");
 		
 		client.identify(id);
-		ItemRecGetTopNRequestBuilder builder = client.getItemRecGetTopNRequestBuilder("BigDamnEngine", 10);
+		ItemRecGetTopNRequestBuilder builder = client.getItemRecGetTopNRequestBuilder(engineName, 10);
 		String[] recs = client.getItemRecTopN(builder);
 				
 		for (String rec : recs) {
@@ -95,34 +96,18 @@ public class BigDamnImportTest {
 	}
 	
 	@Test
-	public void clientShouldRecommendThingsToWatch() throws UnidentifiedUserException, ExecutionException, InterruptedException, IOException {
-		
-		String id = "999";
-		Map<String, String> movies = importer.importMovies();
-		
-		client.identify(id);
-		ItemRecGetTopNRequestBuilder builder = client.getItemRecGetTopNRequestBuilder("WatchEngine", 10);
-		String[] recs = client.getItemRecTopN(builder);
-				
-		for (String rec : recs) {
-			String title = movies.get(rec);
-			System.out.println("user " + id + " could watch " + title);
-		}
-		
-	}
-	
-	@Test
-	public void clientShouldDoStuffWithTheOtherEngineToo() throws ExecutionException, InterruptedException, IOException {
-		String[] stuff = 
+	public void clientShouldRecommendSimilarItems() throws ExecutionException, InterruptedException, IOException {
+		String engineName = "BigDamnSimilarEngine";
+		String[] similarMovies = 
 				client.getItemSimTopN(new ItemSimGetTopNRequestBuilder(url, "json", 
-						apiKey, "similarityEngine", "28", 10));
+						appKey, engineName, "28", 10));
 		
 		Map<String, String> movies = importer.importMovies();
 		
 		System.out.println("Stuff similar to Apollo 13: ");
 		
-		for (String thing : stuff) {
-			String title = movies.get(thing);
+		for (String movie : similarMovies) {
+			String title = movies.get(movie);
 			System.out.println(title);
 		}
 		
